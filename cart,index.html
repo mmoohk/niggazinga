@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صفحة السلة</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+
+  body {
+    font-family: 'Amiri', serif;
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #b76e79;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: #fff;
+  }
+
+  .cart-items {
+    margin-top: 20px;
+  }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #555;
+  }
+
+  .item-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .item-price {
+    font-size: 14px;
+    color: #00ff00;
+    font-weight: bold;
+  }
+
+  .total {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .confirm-order-btn {
+    background-color: #b76e79;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+  }
+
+  .confirm-order-btn:hover {
+    background-color: #8c3d4f;
+  }
+
+  .cancel-item-btn {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+  }
+
+  .cancel-item-btn:hover {
+    background-color: #d32f2f;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">صفحة السلة</div>
+      <div class="subtitle">عرض المنتجات المضافة إلى السلة وتأكيد الطلب</div>
+    </div>
+    <div>
+      <a href="index.html" class="cart-icon" data-count="0">العودة إلى المتجر</a>
+    </div>
+  </div>
+
+  <div class="cart-items" id="cart-items">
+    <!-- هنا سيتم إضافة العناصر من السكربت -->
+  </div>
+
+  <div class="total" id="total">
+    الإجمالي: $0.00
+  </div>
+
+  <button class="confirm-order-btn" onclick="confirmOrder()">تأكيد الطلب</button>
+</div>
+
+<script>
+  let cartز = [];
+
+  function loadCart() {
+    const savedCart = JSON.parse(localStorage.getItem('cart'));
+    if (savedCart) {
+      cart = savedCart;
+      displayCartItems();
+    }
+  }
+
+  function displayCartItems() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    cartItemsContainer.innerHTML = '';
+
+    let totalPrice = 0;
+
+    cart.forEach((item, index) => {
+      const cartItemElement = document.createElement('div');
+      cartItemElement.classList.add('cart-item');
+
+      const itemName = document.createElement('div');
+      itemName.classList.add('item-name');
+      itemName.textContent = item.name;
+      cartItemElement.appendChild(itemName);
+
+      const itemPrice = document.createElement('div');
+      itemPrice.classList.add('item-price');
+      itemPrice.textContent = `$${item.price.toFixed(2)}`;
+      cartItemElement.appendChild(itemPrice);
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.classList.add('cancel-item-btn');
+      cancelBtn.textContent = 'إلغاء العبد؟';
+      cancelBtn.onclick = function() {
+        cancelItem(index);
+      };
+      cartItemElement.appendChild(cancelBtn);
+
+      cartItemsContainer.appendChild(cartItemElement);
+
+      totalPrice += item.price;
+    });
+
+    const totalElement = document.getElementById('total');
+    totalElement.textContent = `الإجمالي: $${totalPrice.toFixed(2)}`;
+  }
+
+  function cancelItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    displayCartItems();
+  }
+
+  function confirmOrder() {
+    const totalPrice = cart.reduce((total, item) => total + item.price, 0);
+
+    // Replace with your PayPal checkout link
+    const paypalLink = `https://www.paypal.com/paypalme/Mohammedsade?v=1&utm_source=unp&utm_medium=email&utm_campaign=RT000481&utm_unptid=d59827fe-3c6b-11ef-a15c-3cfdfeef78f5&ppid=RT000481&cnac=BH&rsta=ar_EG%28ar-BH%29&cust=J325GEXX8KX6Y&unptid=d59827fe-3c6b-11ef-a15c-3cfdfeef78f5&calc=46449369ce865&unp_tpcid=ppme-social-business-profile-created&page=main%3Aemail%3ART000481&pgrp=main%3Aemail&e=cl&mchn=em&s=ci&mail=sys&appVersion=1.263`;
+
+    // Redirect to PayPal with total amount
+    window.location.href = `${paypalLink}&total=${totalPrice.toFixed(2)}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCart);
+</script>
+</body>
+</html> 
+ 
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متجر الزنج الأرخص</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+
+  body {
+    font-family: 'Amiri', serif;
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #b76e79;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: #fff;
+  }
+
+  .products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .product {
+    background-color: #333;
+    padding: 20px;
+    margin: 10px;
+    width: calc(33.33% - 40px);
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .product img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .product-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    margin: 10px 0;
+  }
+
+  .product-price {
+    font-size: 14px;
+    color: #00ff00;
+    font-weight: bold;
+  }
+
+  .add-to-cart-button {
+    background-color: #b76e79;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+  }
+
+  .add-to-cart-button:hover {
+    background-color: #8c3d4f;
+  }
+
+  .cart-icon {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .cart-icon::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: red;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .product {
+      width: calc(50% - 40px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product {
+      width: calc(100% - 40px);
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">متجر الزنج الأرخص</div>
+      <div class="subtitle">لسنا الوحيدون ولكننا الأفضل 🔥</div>
+    </div>
+    <div>
+      <a href="cart.html" class="cart-icon" data-count="0">🛒</a>
+    </div>
+  </div>
+
+  <div class="products" id="products">
+    <div class="product">
+      <img src="https://i.ibb.co/98VzXWK/product-2.jpg" alt="منتج 1">
+      <div class="product-title">الدنكلي</div>
+      <div class="product-price">السعر: $7,90</div>
+      <button class="add-to-cart-button" onclick="addToCart('الدنكلي', 7.90)">أضف إلى السلة</button>
+    </div>
+
+    <div class="product">
+      <img src="https://i.ibb.co/XjbNSp7/product-1.jpg" alt="منتج 2">
+      <div class="product-title">ابو طرشمان</div>
+      <div class="product-price">السعر: $4,50</div>
+      <button class="add-to-cart-button" onclick="addToCart('ابو طرشمان', 4.50)">أضف إلى السلة</button>
+    </div>
+
+    <div class="product">
+      <img src="https://i.ibb.co/zG2YpBF/product3.jpg" alt="منتج 3">
+      <div class="product-title">الخازوق</div>
+      <div class="product-price">السعر: $6</div>
+      <button class="add-to-cart-button" onclick="addToCart('الخازوق', 6.00)">أضف إلى السلة</button>
+    </div>
+
+    <div class="product">
+      <img src="https://i.ibb.co/HC4FV76/product4.jpg" alt="منتج 4">
+      <div class="product-title">زنجيقا</div>
+      <div class="product-price">السعر: $3,75</div>
+      <button class="add-to-cart-button" onclick="addToCart('زنجيقا', 3.75)">أضف إلى السلة</button>
+    </div>
+
+    <div class="product">
+      <img src="https://i.ibb.co/Srqfby1/product5.jpg" alt="منتج 5">
+      <div class="product-title">البولبول</div>
+      <div class="product-price">السعر: $2,90</div>
+      <button class="add-to-cart-button" onclick="addToCart('البولبول', 2.90)">أضف إلى السلة</button>
+    </div>
+
+    <div class="product">
+      <img src="https://i.ibb.co/mR6SPqk/product6.jpg" alt="منتج 6">
+      <div class="product-title">كعبول</div>
+      <div class="product-price">السعر: $6,99</div>
+      <button class="add-to-cart-button" onclick="addToCart('كعبول', 6.99)">أضف إلى السلة</button>
+    </div>
+
+    <div class="product">
+      <img src="https://i.ibb.co/yRpnYp2/product7.jpg" alt="منتج 7">
+      <div class="product-title">ورياليلي</div>
+      <div class="product-price">السعر: $3,45</div>
+      <button class="add-to-cart-button" onclick="addToCart('ورياليلي', 3.45)">أضف إلى السلة</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let cart = [];
+
+  function addToCart(productName, productPrice) {
+    cart.push({ name: productName, price: productPrice });
+    updateCartIcon();
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
+  function updateCartIcon() {
+    const cartIcon = document.querySelector('.cart-icon');
+    cartIcon.setAttribute('data-count', cart.length);
+  }
+
+  function loadCart() {
+    const savedCart = JSON.parse(localStorage.getItem('cart'));
+    if (savedCart) {
+      cart = savedCart;
+      updateCartIcon();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCart);
+</script>
+</body>
+</html>
